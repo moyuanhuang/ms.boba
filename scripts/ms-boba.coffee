@@ -30,6 +30,21 @@ module.exports = (msBoba) ->
     else
       res.send START_ORDER_STRING
 
+  msBoba.hear /\.status/i, (res) ->
+    takingOrder = msBoba.brain.get 'takingOrder'
+
+    if takingOrder
+      order = msBoba.brain.get 'order'
+      sender = res.message.user.name
+      myOrder = order && order[sender]
+
+      if myOrder
+        res.reply "You ordered #{myOrder}."
+      else
+        res.reply "You have no order."
+    else
+      res.reply START_ORDER_STRING
+
   msBoba.hear /\.order/i, (res) ->
     takingOrder = msBoba.brain.get 'takingOrder'
 
