@@ -1,5 +1,6 @@
 START_ORDER_STRING = "Please start an order with `.boba`."
 ADD_ORDER_STRING = "Reply with `.add <your order here>` to add your order."
+WHITE_LIST = [ "mark.huang", "boba" ]
 
 module.exports = (msBoba) ->
 
@@ -57,7 +58,9 @@ module.exports = (msBoba) ->
         for username, item of order
           list += "@#{username} : #{item}\n"
         res.send list
-        stopOrder()
+        user = _russianRoulette(Object.keys(order))
+        res.send "@#{user}, go get it!"
+        _stopOrder()
         # TODO: maybe send private message to everyone?
       else
         res.send "No one has ordered milk tea."
@@ -65,18 +68,27 @@ module.exports = (msBoba) ->
     else
       res.send START_ORDER_STRING
 
-
-
   msBoba.hear /\.cancel/i, (res) ->
     takingOrder = msBoba.brain.get 'takingOrder'
 
     if takingOrder
-      stopOrder()
+      _stopOrder()
       res.send "Boba order cancelled."
     else
       res.send "No order in progress."
 
-  stopOrder = () ->
+  _stopOrder = () ->
     msBoba.brain.set 'order', null
     msBoba.brain.set 'takingOrder', false
 
+  _applyWhiteList = (users) ->
+    return (users.filter (u) -> WHITE_LIST.indexOf(u) == -1).length > 0
+
+  _russianRoulette = (users) ->
+    user = users[Math.floor(Math.random() * users.length)]
+
+    if _applyWhiteList(users)
+      while user in WHITE_LIST
+        user = users[Math.floor(Math.random() * users.length)]
+
+    return user
