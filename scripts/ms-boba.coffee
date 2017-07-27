@@ -1,6 +1,6 @@
 module.exports = (msBoba) ->
 
-  msBoba.hear /.boba/i, (res) ->
+  msBoba.hear /\.boba/i, (res) ->
     takingOrder = msBoba.brain.get 'takingOrder'
 
     if takingOrder
@@ -11,7 +11,7 @@ module.exports = (msBoba) ->
     
     res.send "Reply with `.add <your order here>` to add your order."
 
-  msBoba.hear /.add (.*)/i, (res) ->
+  msBoba.hear /\.add (.*)/i, (res) ->
     takingOrder = msBoba.brain.get 'takingOrder'
     # res.send "takingOrder: #{msBoba.brain.get 'takingOrder'}"
     if takingOrder
@@ -31,7 +31,7 @@ module.exports = (msBoba) ->
     else
       res.send "Please start an order with `.boba`."
 
-  msBoba.hear /.cancel/i, (res) ->
+  msBoba.hear /\.cancel/i, (res) ->
     takingOrder = msBoba.brain.get 'takingOrder'
 
     if takingOrder
