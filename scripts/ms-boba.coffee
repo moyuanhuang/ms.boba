@@ -46,6 +46,25 @@ module.exports = (msBoba) ->
     else
       msBoba.messageRoom "@#{sender}", START_ORDER_STRING
 
+  msBoba.hear /\.status/i, (res) ->
+    takingOrder = msBoba.brain.get 'takingOrder'
+
+    if takingOrder
+      order = msBoba.brain.get 'order'
+
+      if order
+        list = "Current orders:\n"
+
+        for username, item of order
+          list += "@#{username} : #{item}\n"
+        res.send list
+      else
+        res.send "No one has ordered milk tea."
+        res.send ADD_ORDER_STRING
+    else
+      res.send START_ORDER_STRING
+
+
   msBoba.hear /\.order/i, (res) ->
     takingOrder = msBoba.brain.get 'takingOrder'
 
