@@ -85,6 +85,7 @@ module.exports = (msBoba) ->
 
         # TODO: get phone number from yelp api
         Twilio.sms(process.env.TEST_PHONE_NUMBER, list)
+        Twilio.call(process.env.TEST_PHONE_NUMBER, process.env.MS_BOBA_CALL_MSG)
 
         _stopOrder()
         # TODO: maybe send private message to everyone?

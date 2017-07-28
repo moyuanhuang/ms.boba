@@ -28,4 +28,14 @@ module.exports = {
       }
     });
   },
+
+  call: (to, url) => {
+    twilio.calls.create({
+      url,
+      to,
+      from: process.env.TWILIO_PHONE_NUMBER,
+    }, function(err, call) {
+      process.stdout.write(call.sid);
+    });
+  },
 };
