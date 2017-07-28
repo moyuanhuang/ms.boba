@@ -1,3 +1,5 @@
+Twilio = require('./twilio-engine.js')
+
 START_ORDER_STRING = "Please start an order with `.boba`."
 ADD_ORDER_STRING = "Reply with `.add <your order here>` to add your order."
 WHITE_LIST = [ "mark.huang", "boba" ]
@@ -76,9 +78,15 @@ module.exports = (msBoba) ->
 
         for username, item of order
           list += "@#{username} : #{item}\n"
+
         res.send list
         user = _russianRoulette(Object.keys(order))
         res.send "@#{user}, go get it!"
+
+        # TODO: get phone number from yelp api
+        Twilio.sms(process.env.TEST_PHONE_NUMBER, list)
+        Twilio.call(process.env.TEST_PHONE_NUMBER, process.env.MS_BOBA_CALL_MSG)
+
         _stopOrder()
         # TODO: maybe send private message to everyone?
       else
