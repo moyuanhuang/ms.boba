@@ -66,6 +66,15 @@ module.exports = (msBoba) ->
     takingOrder = msBoba.brain.get 'takingOrder'
 
     if takingOrder
+      bus = msBoba.brain.get 'orderLocation'
+      locationMsg = "\nOrder will send to "
+      if bus
+        locationMsg += "<#{bus.url}|#{bus.name}>: #{bus.phone}\n"
+        locationMsg += "#{bus.location.display_address}"
+      else
+        locationMsg += "#{process.env.TEST_PHONE_NUMBER}"
+      res.send locationMsg
+
       order = msBoba.brain.get 'order'
 
       if order
@@ -80,6 +89,21 @@ module.exports = (msBoba) ->
     else
       res.send START_ORDER_STRING
 
+  msBoba.hear /\.pick (.*)/i, (res) ->
+    takingOrder = msBoba.brain.get 'takingOrder'
+
+    if takingOrder
+      business = res.match[1]
+      if business
+        yelp.getBusinessByName(
+          business,
+          LOCATION,
+          (bus) ->
+            res.send "<#{bus.url}|#{bus.name}>: #{bus.phone}\n"
+            msBoba.brain.set 'orderLocation', bus
+        )
+    else
+      res.send START_ORDER_STRING
 
   msBoba.hear /\.order/i, (res) ->
     takingOrder = msBoba.brain.get 'takingOrder'
@@ -93,12 +117,13 @@ module.exports = (msBoba) ->
         for username, item of order
           list += "@#{username} : #{item}\n"
 
-        # TODO: get phone number from yelp api
+        bus = msBoba.brain.get 'orderLocation'
+        orderPhoneNumber = (bus && bus.phone) || process.env.TEST_PHONE_NUMBER;
 
         msBoba.brain.set 'orderSuccess', true
 
         Twilio.sms(
-          process.env.TEST_PHONE_NUMBER,
+          orderPhoneNumber,
           list,
           (err, msg) ->
             if err
@@ -112,7 +137,7 @@ module.exports = (msBoba) ->
         )
 
         Twilio.call(
-          process.env.TEST_PHONE_NUMBER,
+          orderPhoneNumber,
           process.env.MS_BOBA_CALL_MSG,
           (err, msg) ->
             if err
@@ -127,6 +152,15 @@ module.exports = (msBoba) ->
 
         if (msBoba.brain.get 'orderSuccess')
           res.send list
+
+          locationMsg = "\nOrder sent to "
+          if bus
+            locationMsg += "<#{bus.url}|#{bus.name}>: #{bus.phone}\n"
+            locationMsg += "#{bus.location.display_address}"
+          else
+            locationMsg += "#{orderPhoneNumber}"
+          res.send locationMsg
+
           user = _russianRoulette(Object.keys(order))
           res.send "@#{user}, go get it!"
           _stopOrder()
@@ -150,6 +184,7 @@ module.exports = (msBoba) ->
     msBoba.brain.set 'takingOrder', false
     msBoba.brain.set 'order', null
     msBoba.brain.set 'orderSuccess', null
+    msBoba.brain.set 'orderLocation', null
 
   _applyWhiteList = (users) ->
     return (users.filter (u) -> WHITE_LIST.indexOf(u) == -1).length > 0

@@ -26,6 +26,7 @@ module.exports = {
       client.search({
         term,
         location,
+        open_now: true,
       }).then((response) => {
           msg = selectBusinesses(response.jsonBody.businesses);
           callback(msg);
@@ -33,5 +34,22 @@ module.exports = {
     }).catch(e => {
       console.log(e);
     });
-  }
+  },
+
+  getBusinessByName: (business_name, location, callback) => {
+    console.log('searching for', business_name);
+    yelp.accessToken(CLIENT_ID, CLIENT_SECRET).then(response => {
+      const client = yelp.client(response.jsonBody.access_token);
+      client.search({
+        term: business_name,
+        location,
+      }).then((response) => {
+        businesses = response.jsonBody.businesses;
+        console.log(businesses[0]);
+        callback(businesses[0]);
+      });
+    }).catch(e => {
+      console.log(e);
+    });
+  },
 }
