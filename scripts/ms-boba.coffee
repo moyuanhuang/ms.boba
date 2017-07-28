@@ -105,6 +105,41 @@ module.exports = (msBoba) ->
     else
       res.send START_ORDER_STRING
 
+  msBoba.hear /\.vote (.*)/i, (res) ->
+    takingOrder = msBoba.brain.get 'takingOrder'
+    if !takingOrder
+      res.send START_ORDER_STRING
+      return
+      
+    voting = msBoba.brain.get 'voting'
+    voted_list = msBoba.brain.get 'voted_list'
+    sender = res.message.user.name
+    business_name = res.match[1]
+
+    unless voting
+      voting = {}
+    unless voted_list
+      voted_list = []
+    if sender in voted_list
+      res.send "#{sender} has already voted!"
+      return
+
+    if business_name
+      yelp.getBusinessByName(
+        business_name,
+        LOCATION,
+        (bus) ->
+          unless voting[bus.name]
+            voting[bus.name] = []
+          voting[bus.name].push(sender)
+          voted_list.push(sender)
+          res.send "#{sender} voted for #{bus.name}! current voting: #{voting[bus.name].length}"
+          msBoba.brain.set 'voting', voting
+          msBoba.brain.set 'voted_list', voted_list
+      )
+    else
+      res.send "#{business_name} not found in yelp."
+
   msBoba.hear /\.order/i, (res) ->
     takingOrder = msBoba.brain.get 'takingOrder'
 
@@ -185,6 +220,8 @@ module.exports = (msBoba) ->
     msBoba.brain.set 'order', null
     msBoba.brain.set 'orderSuccess', null
     msBoba.brain.set 'orderLocation', null
+    msBoba.brain.set 'voting', null
+    msBoba.brain.set 'voted_list', null
 
   _applyWhiteList = (users) ->
     return (users.filter (u) -> WHITE_LIST.indexOf(u) == -1).length > 0

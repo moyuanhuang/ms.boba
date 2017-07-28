@@ -37,7 +37,6 @@ module.exports = {
   },
 
   getBusinessByName: (business_name, location, callback) => {
-    console.log('searching for', business_name);
     yelp.accessToken(CLIENT_ID, CLIENT_SECRET).then(response => {
       const client = yelp.client(response.jsonBody.access_token);
       client.search({
@@ -45,7 +44,6 @@ module.exports = {
         location,
       }).then((response) => {
         businesses = response.jsonBody.businesses;
-        console.log(businesses[0]);
         callback(businesses[0]);
       });
     }).catch(e => {

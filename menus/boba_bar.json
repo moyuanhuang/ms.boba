@@ -1,0 +1,9 @@
+{
+  "drinks": [
+    ["Jasmin Green Milk Tea", 3.5],
+    ["Black Milk Tea", 3.5],
+    ["Thai Tea", 3.5]
+  ],
+  "large": 0.5,
+  "boba": 0.5
+}
