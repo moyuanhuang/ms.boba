@@ -2,7 +2,7 @@ Twilio = require('./twilio-engine.js')
 
 START_ORDER_STRING = "Please start an order with `.boba`."
 ADD_ORDER_STRING = "Reply with `.add <your order here>` to add your order."
-WHITE_LIST = [ "mark.huang", "boba" ]
+WHITE_LIST = [ "mark.huang", "boba", "dean.park" ]
 
 module.exports = (msBoba) ->
 
