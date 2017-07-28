@@ -1,5 +1,7 @@
 Twilio = require('./twilio-engine.js')
 yelp = require('./yelp-engine.js')
+parser = require('./regex.js')
+menu = require('./display.js')
 
 START_ORDER_STRING = "Please start an order with `.boba`."
 ADD_ORDER_STRING = "Reply with `.add <your order here>` to add your order."
@@ -37,6 +39,7 @@ module.exports = (msBoba) ->
       newOrder = res.match[1]
       order = msBoba.brain.get 'order'
       sender = res.message.user.name
+      # options = parser.parseOrder(newOrder)
 
       unless order
         order = {}
@@ -91,26 +94,27 @@ module.exports = (msBoba) ->
 
   msBoba.hear /\.pick (.*)/i, (res) ->
     takingOrder = msBoba.brain.get 'takingOrder'
-
-    if takingOrder
-      business = res.match[1]
-      if business
-        yelp.getBusinessByName(
-          business,
-          LOCATION,
-          (bus) ->
-            res.send "<#{bus.url}|#{bus.name}>: #{bus.phone}\n"
-            msBoba.brain.set 'orderLocation', bus
-        )
-    else
+    unless takingOrder
       res.send START_ORDER_STRING
+      return
+
+    business = res.match[1]
+    if business
+      yelp.getBusinessByName(
+        business,
+        LOCATION,
+        (bus) ->
+          res.send "<#{bus.url}|#{bus.name}>: #{bus.phone}\n"
+          res.send menu.displayMenu(bus);
+          msBoba.brain.set 'orderLocation', bus
+      )
 
   msBoba.hear /\.vote (.*)/i, (res) ->
     takingOrder = msBoba.brain.get 'takingOrder'
     if !takingOrder
       res.send START_ORDER_STRING
       return
-      
+
     voting = msBoba.brain.get 'voting'
     voted_list = msBoba.brain.get 'voted_list'
     sender = res.message.user.name
