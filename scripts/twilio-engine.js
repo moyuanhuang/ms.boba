@@ -12,20 +12,19 @@
 var twilio = require('twilio')(process.env.TWILIO_ACCOUNT_SID, process.env.TWILIO_ACCOUNT_TOKEN);
 
 module.exports = {
-  sms: (to, body) => {
+  sms: (to, body, callback) => {
     twilio.messages.create({ 
       to, 
       from: process.env.TWILIO_PHONE_NUMBER, 
       body, 
-    }, function(err, message) {
-      if (err) {
-        console.log(err);
-        return;
-      }
+    }, callback);
+  },
 
-      if (message) {
-        console.log(message.sid); 
-      }
-    });
+  call: (to, url, callback) => {
+    twilio.calls.create({
+      url,
+      to,
+      from: process.env.TWILIO_PHONE_NUMBER,
+    }, callback);
   },
 };

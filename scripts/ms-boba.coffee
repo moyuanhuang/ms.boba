@@ -79,14 +79,43 @@ module.exports = (msBoba) ->
         for username, item of order
           list += "@#{username} : #{item}\n"
 
-        res.send list
-        user = _russianRoulette(Object.keys(order))
-        res.send "@#{user}, go get it!"
-
         # TODO: get phone number from yelp api
-        Twilio.sms(process.env.TEST_PHONE_NUMBER, list)
 
-        _stopOrder()
+        msBoba.brain.set 'orderSuccess', true
+
+        Twilio.sms(
+          process.env.TEST_PHONE_NUMBER,
+          list,
+          (err, msg) ->
+            if err
+              console.log err
+              res.send "Error sending order through SMS..."
+              msBoba.brain.set 'orderSuccess', false
+              return
+
+            if msg
+              console.log "SMS SENT - #{msg.sid}"
+        )
+
+        Twilio.call(
+          process.env.TEST_PHONE_NUMBER,
+          process.env.MS_BOBA_CALL_MSG,
+          (err, msg) ->
+            if err
+              console.log err
+              res.send "Error calling in order..."
+              msBoba.brain.set 'orderSuccess', false
+              return
+
+            if msg
+              console.log "CALL PLACED - #{msg.sid}"
+        )
+
+        if (msBoba.brain.get 'orderSuccess')
+          res.send list
+          user = _russianRoulette(Object.keys(order))
+          res.send "@#{user}, go get it!"
+          _stopOrder()
         # TODO: maybe send private message to everyone?
       else
         res.send "No one has ordered milk tea."
@@ -104,8 +133,9 @@ module.exports = (msBoba) ->
       res.send "No order in progress."
 
   _stopOrder = () ->
-    msBoba.brain.set 'order', null
     msBoba.brain.set 'takingOrder', false
+    msBoba.brain.set 'order', null
+    msBoba.brain.set 'orderSuccess', null
 
   _applyWhiteList = (users) ->
     return (users.filter (u) -> WHITE_LIST.indexOf(u) == -1).length > 0
