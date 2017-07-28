@@ -84,8 +84,32 @@ module.exports = (msBoba) ->
         res.send "@#{user}, go get it!"
 
         # TODO: get phone number from yelp api
-        Twilio.sms(process.env.TEST_PHONE_NUMBER, list)
-        Twilio.call(process.env.TEST_PHONE_NUMBER, process.env.MS_BOBA_CALL_MSG)
+
+        Twilio.sms(
+          process.env.TEST_PHONE_NUMBER,
+          list,
+          (err, msg) ->
+            if err
+              console.log err
+              res.send "Error sending order through SMS..."
+              return
+
+            if msg
+              console.log "SMS SENT - #{msg.sid}"
+        )
+
+        Twilio.call(
+          process.env.TEST_PHONE_NUMBER,
+          process.env.MS_BOBA_CALL_MSG,
+          (err, msg) ->
+            if err
+              console.log err
+              res.send "Error calling in order..."
+              return
+
+            if msg
+              console.log "CALL PLACED - #{msg.sid}"
+        )
 
         _stopOrder()
         # TODO: maybe send private message to everyone?
