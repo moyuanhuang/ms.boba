@@ -1,8 +1,12 @@
 Twilio = require('./twilio-engine.js')
+yelp = require('./yelp-engine.js')
 
 START_ORDER_STRING = "Please start an order with `.boba`."
 ADD_ORDER_STRING = "Reply with `.add <your order here>` to add your order."
 WHITE_LIST = [ "mark.huang", "boba", "dean.park" ]
+
+LOCATION = 'convoy street, san diego, ca, 92111'
+TERM = 'milk tea'
 
 module.exports = (msBoba) ->
 
@@ -14,7 +18,17 @@ module.exports = (msBoba) ->
     else
       msBoba.brain.set 'takingOrder', true
 
+    sendChoices = (msg) ->
+      msg += "type .more for more choices!"
+      res.send msg
+
+    yelp.getChoices(TERM, LOCATION, sendChoices)
     res.send ADD_ORDER_STRING
+
+  msBoba.hear /\.more/i, (res) ->
+    sendChoices = (msg) ->
+      res.send msg
+    yelp.getChoices(TERM, LOCATION, sendChoices)
 
   msBoba.hear /\.add (.*)/i, (res) ->
     takingOrder = msBoba.brain.get 'takingOrder'
