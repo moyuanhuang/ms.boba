@@ -9,14 +9,14 @@
 //   TWILIO_ACCOUNT_TOKEN
 //   TWILIO_PHONE_NUMBER
 
-var twilio = require('twilio')(process.env.TWILIO_ACCOUNT_SID, process.env.TWILIO_ACCOUNT_TOKEN);
+const client = require('twilio')(process.env.TWILIO_ACCOUNT_SID, process.env.TWILIO_ACCOUNT_TOKEN);
 
 module.exports = {
   sms: (to, body, callback) => {
-    twilio.messages.create({ 
-      to, 
-      from: process.env.TWILIO_PHONE_NUMBER, 
-      body, 
+    twilio.messages.create({
+      to,
+      from: process.env.TWILIO_PHONE_NUMBER,
+      body,
     }, callback);
   },
 
