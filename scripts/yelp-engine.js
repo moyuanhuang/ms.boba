@@ -1,8 +1,8 @@
 require('dotenv').load();
 const yelp = require('yelp-fusion');
 
-const CLIENT_ID = process.env.YELP_CLIENT_ID;
-const CLIENT_SECRET = process.env.YELP_CLIENT_SECRET;
+const apiKey = process.env.YELP_API_KEY;
+const client = yelp.client(apiKey);
 
 const num_businesses = 3
 function selectBusinesses(businesses) {
@@ -22,33 +22,23 @@ function selectBusinesses(businesses) {
 
 module.exports = {
   getChoices: (term, location, callback) => {
-    yelp.accessToken(CLIENT_ID, CLIENT_SECRET).then(response => {
-      const client = yelp.client(response.jsonBody.access_token);
-      client.search({
-        term,
-        location,
-        open_now: true,
-      }).then((response) => {
-          msg = selectBusinesses(response.jsonBody.businesses);
-          callback(msg);
-      });
-    }).catch(e => {
-      console.log(e);
+    client.search({
+      term,
+      location,
+      open_now: true,
+    }).then((response) => {
+        msg = selectBusinesses(response.jsonBody.businesses);
+        callback(msg);
     });
   },
 
   getBusinessByName: (business_name, location, callback) => {
-    yelp.accessToken(CLIENT_ID, CLIENT_SECRET).then(response => {
-      const client = yelp.client(response.jsonBody.access_token);
-      client.search({
-        term: business_name,
-        location,
-      }).then((response) => {
-        businesses = response.jsonBody.businesses;
-        callback(businesses[0]);
-      });
-    }).catch(e => {
-      console.log(e);
+    client.search({
+      term: business_name,
+      location,
+    }).then((response) => {
+      businesses = response.jsonBody.businesses;
+      callback(businesses[0]);
     });
   },
 }
