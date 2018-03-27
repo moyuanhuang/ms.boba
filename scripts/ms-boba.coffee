@@ -1,3 +1,4 @@
+require('dotenv').load();
 Twilio = require('./twilio-engine.js')
 yelp = require('./yelp-engine.js')
 parser = require('./regex.js')

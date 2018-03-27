@@ -1,3 +1,4 @@
+require('dotenv').load();
 const yelp = require('yelp-fusion');
 
 const CLIENT_ID = process.env.YELP_CLIENT_ID;
