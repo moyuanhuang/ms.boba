@@ -5,6 +5,7 @@
   "author": "moyuanhuang <moyuanhuang@gmail.com>",
   "description": "Milk tea makes life easier",
   "dependencies": {
+    "dotenv": "^6.0.0",
     "hubot": "^2.19.0",
     "hubot-diagnostics": "0.0.2",
     "hubot-has-no-idea": "^1.2.0",
